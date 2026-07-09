@@ -28,3 +28,30 @@ Database:
 ## Run locally
 
 Install dependencies:
+
+```
+
+npm install
+
+```
+
+Start:
+
+```
+
+npm start
+
+```
+
+Open:
+
+```
+
+[http://localhost:3000](http://localhost:3000)
+
+```
+
+
+## Deploy
+
+Designed to run on Render.
