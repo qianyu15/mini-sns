@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+<meta charset="UTF-8">
+<title>Mini SNS</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+
+<body>
+
+<h1>Mini SNS</h1>
+
+
+<section>
+
+<h2>登録</h2>
+
+<input id="regUser" placeholder="ユーザー名">
+<input id="regPass" placeholder="パスワード">
+
+<button onclick="register()">
+登録
+</button>
+
+</section>
+
+
+
+<section>
+
+<h2>ログイン</h2>
+
+<input id="loginUser" placeholder="ユーザー名">
+<input id="loginPass" placeholder="パスワード">
+
+<button onclick="login()">
+ログイン
+</button>
+
+</section>
+
+
+
+<section>
+
+<h2>投稿</h2>
+
+<textarea id="postText"></textarea>
+
+<button onclick="post()">
+投稿
+</button>
+
+
+</section>
+
+
+
+<h2>タイムライン</h2>
+
+<div id="timeline"></div>
+
+
+<script src="app.js"></script>
+
+</body>
+
+</html>
