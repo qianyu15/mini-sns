@@ -118,19 +118,37 @@ app.post("/api/posts",(req,res)=>{
 
 
 // 投稿一覧
-app.get("/api/posts",(req,res)=>{
-
+app.get("/api/posts", (req, res) => {
 
     db.all(
-        "SELECT * FROM posts ORDER BY id DESC",
+        `
+        SELECT
+            posts.id,
+            users.username,
+            posts.content,
+            posts.created_at
+        FROM posts
+        INNER JOIN users
+            ON posts.user_id = users.id
+        ORDER BY posts.id DESC
+        `,
         [],
-        (err,rows)=>{
+        (err, rows) => {
+
+            if (err) {
+
+                console.error(err);
+
+                return res.status(500).json({
+                    error: "投稿取得に失敗しました"
+                });
+
+            }
 
             res.json(rows);
 
         }
     );
-
 
 });
 
