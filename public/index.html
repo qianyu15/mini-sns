@@ -1,70 +1,832 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
-<meta charset="UTF-8">
-<title>Mini SNS</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Mini SNS</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
+<body class="min-h-screen bg-slate-100 text-slate-900">
 
-<body>
+    <!-- ヘッダー -->
+    <header class="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
 
-<h1>Mini SNS</h1>
+        <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
 
+            <h1 class="text-xl font-bold tracking-tight">
+                Mini SNS
+            </h1>
 
-<section>
+            <div id="userArea" class="flex items-center gap-3">
 
-<h2>登録</h2>
+                <span
+                    id="currentUsername"
+                    class="hidden text-sm font-medium text-slate-600">
+                </span>
 
-<input id="regUser" placeholder="ユーザー名">
-<input id="regPass" placeholder="パスワード">
+                <button
+                    id="logoutButton"
+                    class="hidden rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700">
+                    ログアウト
+                </button>
 
-<button onclick="register()">
-登録
-</button>
+                <button
+                    id="loginOpenButton"
+                    class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700">
+                    ログイン
+                </button>
 
-</section>
+            </div>
 
+        </div>
 
-
-<section>
-
-<h2>ログイン</h2>
-
-<input id="loginUser" placeholder="ユーザー名">
-<input id="loginPass" placeholder="パスワード">
-
-<button onclick="login()">
-ログイン
-</button>
-
-</section>
-
-
-
-<section>
-
-<h2>投稿</h2>
-
-<textarea id="postText"></textarea>
-
-<button onclick="post()">
-投稿
-</button>
+    </header>
 
 
-</section>
+    <!-- メイン -->
+    <main class="mx-auto max-w-5xl px-4 py-8">
+
+        <!-- 未ログイン表示 -->
+        <section
+            id="guestSection"
+            class="mb-8 rounded-2xl bg-white p-8 text-center shadow-sm">
+
+            <h2 class="mb-3 text-2xl font-bold">
+                Mini SNSへようこそ
+            </h2>
+
+            <p class="mb-6 text-slate-500">
+                ログインして投稿を始めましょう。
+            </p>
+
+            <button
+                id="guestLoginButton"
+                class="rounded-xl bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700">
+                ログインする
+            </button>
+
+        </section>
 
 
+        <!-- 投稿フォーム -->
+        <section
+            id="postSection"
+            class="mb-8 hidden rounded-2xl bg-white p-6 shadow-sm">
 
-<h2>タイムライン</h2>
+            <h2 class="mb-4 text-lg font-bold">
+                新しい投稿
+            </h2>
 
-<div id="timeline"></div>
+            <form id="postForm">
+
+                <textarea
+                    id="content"
+                    maxlength="500"
+                    placeholder="いま何してる？"
+                    class="mb-4 min-h-32 w-full resize-none rounded-xl border border-slate-200 p-4 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                    required>
+                </textarea>
+
+                <div class="flex items-center justify-between">
+
+                    <span
+                        id="charCount"
+                        class="text-sm text-slate-400">
+                        0 / 500
+                    </span>
+
+                    <button
+                        type="submit"
+                        class="rounded-xl bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
+                        投稿する
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
 
 
-<script src="app.js"></script>
+        <!-- 投稿一覧 -->
+        <section>
+
+            <div class="mb-4 flex items-center justify-between">
+
+                <h2 class="text-xl font-bold">
+                    最新の投稿
+                </h2>
+
+                <button
+                    id="reloadButton"
+                    class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 transition hover:bg-slate-50">
+                    更新
+                </button>
+
+            </div>
+
+
+            <div
+                id="postsContainer"
+                class="space-y-4">
+            </div>
+
+
+            <div
+                id="emptyMessage"
+                class="hidden rounded-2xl bg-white p-8 text-center text-slate-500 shadow-sm">
+                まだ投稿がありません。
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ログイン / 登録モーダル -->
+    <div
+        id="authModal"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 px-4">
+
+        <div
+            class="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+
+            <div class="mb-6 flex items-center justify-between">
+
+                <h2
+                    id="authTitle"
+                    class="text-xl font-bold">
+                    ログイン
+                </h2>
+
+                <button
+                    id="closeModalButton"
+                    class="text-2xl leading-none text-slate-400 hover:text-slate-700">
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="authForm">
+
+                <label class="mb-2 block text-sm font-medium">
+                    ユーザー名
+                </label>
+
+                <input
+                    id="username"
+                    type="text"
+                    autocomplete="username"
+                    required
+                    class="mb-4 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+
+
+                <label class="mb-2 block text-sm font-medium">
+                    パスワード
+                </label>
+
+                <input
+                    id="password"
+                    type="password"
+                    autocomplete="current-password"
+                    required
+                    class="mb-4 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+
+
+                <p
+                    id="authError"
+                    class="mb-4 hidden rounded-lg bg-red-50 p-3 text-sm text-red-600">
+                </p>
+
+
+                <button
+                    type="submit"
+                    class="w-full rounded-xl bg-blue-600 py-3 font-medium text-white transition hover:bg-blue-700">
+                    <span id="authSubmitText">
+                        ログイン
+                    </span>
+                </button>
+
+            </form>
+
+
+            <div class="mt-6 text-center text-sm text-slate-500">
+
+                <span id="authSwitchText">
+                    アカウントを持っていませんか？
+                </span>
+
+                <button
+                    id="authSwitchButton"
+                    class="font-medium text-blue-600 hover:underline">
+                    新規登録
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- トースト通知 -->
+    <div
+        id="toast"
+        class="fixed bottom-6 left-1/2 z-[60] hidden -translate-x-1/2 rounded-xl bg-slate-900 px-5 py-3 text-sm text-white shadow-lg">
+    </div>
+
+
+    <script>
+
+        // =========================
+        // 状態
+        // =========================
+
+        let isRegisterMode = false;
+
+
+        // =========================
+        // DOM
+        // =========================
+
+        const authModal = document.getElementById("authModal");
+
+        const authForm = document.getElementById("authForm");
+
+        const authTitle = document.getElementById("authTitle");
+
+        const authSubmitText = document.getElementById("authSubmitText");
+
+        const authSwitchText = document.getElementById("authSwitchText");
+
+        const authSwitchButton = document.getElementById("authSwitchButton");
+
+        const authError = document.getElementById("authError");
+
+        const usernameInput = document.getElementById("username");
+
+        const passwordInput = document.getElementById("password");
+
+        const postForm = document.getElementById("postForm");
+
+        const contentInput = document.getElementById("content");
+
+        const charCount = document.getElementById("charCount");
+
+        const postsContainer = document.getElementById("postsContainer");
+
+        const emptyMessage = document.getElementById("emptyMessage");
+
+        const guestSection = document.getElementById("guestSection");
+
+        const postSection = document.getElementById("postSection");
+
+        const currentUsername = document.getElementById("currentUsername");
+
+        const loginOpenButton = document.getElementById("loginOpenButton");
+
+        const guestLoginButton = document.getElementById("guestLoginButton");
+
+        const logoutButton = document.getElementById("logoutButton");
+
+        const closeModalButton = document.getElementById("closeModalButton");
+
+        const reloadButton = document.getElementById("reloadButton");
+
+        const toast = document.getElementById("toast");
+
+
+        // =========================
+        // 認証状態
+        // =========================
+
+        function getToken() {
+
+            return localStorage.getItem("token");
+
+        }
+
+
+        function getUsername() {
+
+            return localStorage.getItem("username");
+
+        }
+
+
+        function isLoggedIn() {
+
+            return Boolean(getToken());
+
+        }
+
+
+        function updateUI() {
+
+            if (isLoggedIn()) {
+
+                const username = getUsername();
+
+                guestSection.classList.add("hidden");
+
+                postSection.classList.remove("hidden");
+
+                loginOpenButton.classList.add("hidden");
+
+                logoutButton.classList.remove("hidden");
+
+                currentUsername.classList.remove("hidden");
+
+                currentUsername.textContent = `@${username}`;
+
+            } else {
+
+                guestSection.classList.remove("hidden");
+
+                postSection.classList.add("hidden");
+
+                loginOpenButton.classList.remove("hidden");
+
+                logoutButton.classList.add("hidden");
+
+                currentUsername.classList.add("hidden");
+
+            }
+
+        }
+
+
+        // =========================
+        // モーダル
+        // =========================
+
+        function openAuthModal(register = false) {
+
+            isRegisterMode = register;
+
+            authModal.classList.remove("hidden");
+
+            authModal.classList.add("flex");
+
+            authError.classList.add("hidden");
+
+            authForm.reset();
+
+            updateAuthMode();
+
+        }
+
+
+        function closeAuthModal() {
+
+            authModal.classList.add("hidden");
+
+            authModal.classList.remove("flex");
+
+        }
+
+
+        function updateAuthMode() {
+
+            if (isRegisterMode) {
+
+                authTitle.textContent = "新規登録";
+
+                authSubmitText.textContent = "登録する";
+
+                authSwitchText.textContent =
+                    "すでにアカウントを持っていますか？";
+
+                authSwitchButton.textContent = "ログイン";
+
+            } else {
+
+                authTitle.textContent = "ログイン";
+
+                authSubmitText.textContent = "ログイン";
+
+                authSwitchText.textContent =
+                    "アカウントを持っていませんか？";
+
+                authSwitchButton.textContent = "新規登録";
+
+            }
+
+        }
+
+
+        // =========================
+        // 通知
+        // =========================
+
+        function showToast(message) {
+
+            toast.textContent = message;
+
+            toast.classList.remove("hidden");
+
+            setTimeout(() => {
+
+                toast.classList.add("hidden");
+
+            }, 2500);
+
+        }
+
+
+        // =========================
+        // 認証
+        // =========================
+
+        authForm.addEventListener("submit", async (event) => {
+
+            event.preventDefault();
+
+            const username = usernameInput.value.trim();
+
+            const password = passwordInput.value;
+
+            const endpoint = isRegisterMode
+                ? "/api/register"
+                : "/api/login";
+
+
+            try {
+
+                const response = await fetch(endpoint, {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        username,
+                        password
+                    })
+
+                });
+
+
+                const data = await response.json();
+
+
+                if (isRegisterMode) {
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            data.error || "登録に失敗しました"
+                        );
+
+                    }
+
+                    showToast("登録しました");
+
+                    isRegisterMode = false;
+
+                    updateAuthMode();
+
+                    return;
+
+                }
+
+
+                if (!data.success) {
+
+                    throw new Error(
+                        "ユーザー名またはパスワードが違います"
+                    );
+
+                }
+
+
+                localStorage.setItem(
+                    "token",
+                    data.token
+                );
+
+                localStorage.setItem(
+                    "username",
+                    username
+                );
+
+
+                closeAuthModal();
+
+                updateUI();
+
+                showToast("ログインしました");
+
+            } catch (error) {
+
+                authError.textContent = error.message;
+
+                authError.classList.remove("hidden");
+
+            }
+
+        });
+
+
+        // =========================
+        // 投稿
+        // =========================
+
+        postForm.addEventListener("submit", async (event) => {
+
+            event.preventDefault();
+
+            const content = contentInput.value.trim();
+
+            if (!content) return;
+
+
+            try {
+
+                const response = await fetch("/api/posts", {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type": "application/json",
+
+                        "Authorization":
+                            `Bearer ${getToken()}`
+
+                    },
+
+                    body: JSON.stringify({
+                        content
+                    })
+
+                });
+
+
+                const data = await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error || "投稿に失敗しました"
+                    );
+
+                }
+
+
+                contentInput.value = "";
+
+                updateCharCount();
+
+                showToast("投稿しました");
+
+                loadPosts();
+
+            } catch (error) {
+
+                showToast(error.message);
+
+            }
+
+        });
+
+
+        // =========================
+        // 投稿一覧
+        // =========================
+
+        async function loadPosts() {
+
+            try {
+
+                const response = await fetch("/api/posts");
+
+                const posts = await response.json();
+
+
+                postsContainer.innerHTML = "";
+
+
+                if (posts.length === 0) {
+
+                    emptyMessage.classList.remove("hidden");
+
+                    return;
+
+                }
+
+
+                emptyMessage.classList.add("hidden");
+
+
+                posts.forEach(post => {
+
+                    const article =
+                        document.createElement("article");
+
+
+                    article.className =
+                        "rounded-2xl bg-white p-6 shadow-sm";
+
+
+                    const header =
+                        document.createElement("div");
+
+
+                    header.className =
+                        "mb-3 flex items-center justify-between";
+
+
+                    const username =
+                        document.createElement("p");
+
+
+                    username.className =
+                        "font-bold";
+
+
+                    username.textContent =
+                        `@${post.username}`;
+
+
+                    const date =
+                        document.createElement("time");
+
+
+                    date.className =
+                        "text-sm text-slate-400";
+
+
+                    date.textContent =
+                        formatDate(post.created_at);
+
+
+                    header.appendChild(username);
+
+                    header.appendChild(date);
+
+
+                    const content =
+                        document.createElement("p");
+
+
+                    content.className =
+                        "whitespace-pre-wrap break-words leading-7 text-slate-700";
+
+
+                    content.textContent =
+                        post.content;
+
+
+                    article.appendChild(header);
+
+                    article.appendChild(content);
+
+
+                    postsContainer.appendChild(article);
+
+                });
+
+            } catch (error) {
+
+                showToast("投稿の読み込みに失敗しました");
+
+            }
+
+        }
+
+
+        // =========================
+        // 日付
+        // =========================
+
+        function formatDate(dateString) {
+
+            const date =
+                new Date(dateString + "Z");
+
+
+            return date.toLocaleString(
+                "ja-JP",
+                {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            );
+
+        }
+
+
+        // =========================
+        // 文字数
+        // =========================
+
+        function updateCharCount() {
+
+            charCount.textContent =
+                `${contentInput.value.length} / 500`;
+
+        }
+
+
+        contentInput.addEventListener(
+            "input",
+            updateCharCount
+        );
+
+
+        // =========================
+        // ログアウト
+        // =========================
+
+        logoutButton.addEventListener("click", () => {
+
+            localStorage.removeItem("token");
+
+            localStorage.removeItem("username");
+
+            updateUI();
+
+            showToast("ログアウトしました");
+
+        });
+
+
+        // =========================
+        // イベント
+        // =========================
+
+        loginOpenButton.addEventListener(
+            "click",
+            () => openAuthModal(false)
+        );
+
+
+        guestLoginButton.addEventListener(
+            "click",
+            () => openAuthModal(false)
+        );
+
+
+        closeModalButton.addEventListener(
+            "click",
+            closeAuthModal
+        );
+
+
+        authSwitchButton.addEventListener(
+            "click",
+            () => {
+
+                isRegisterMode = !isRegisterMode;
+
+                updateAuthMode();
+
+                authError.classList.add("hidden");
+
+            }
+        );
+
+
+        reloadButton.addEventListener(
+            "click",
+            loadPosts
+        );
+
+
+        authModal.addEventListener(
+            "click",
+            (event) => {
+
+                if (event.target === authModal) {
+
+                    closeAuthModal();
+
+                }
+
+            }
+        );
+
+
+        // =========================
+        // 初期化
+        // =========================
+
+        updateUI();
+
+        loadPosts();
+
+    </script>
 
 </body>
-
 </html>
